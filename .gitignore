@@ -2,4 +2,5 @@
 /target
 /.idea
 go.sum
+/redis-cli.exe
 

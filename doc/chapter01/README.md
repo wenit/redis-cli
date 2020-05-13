@@ -1,14 +1,8 @@
-package main
+## 初始化命令行参数
 
-import (
-	"bufio"
-	"flag"
-	"fmt"
-	"log"
-	"net"
-	"os"
-)
+我们使用flag包进行命令参数的解析
 
+``` go
 var host string
 var port int
 
@@ -17,17 +11,20 @@ func init() {
 	flag.IntVar(&port, "p", 6379, "port")
 }
 
+
 func main() {
 	// 解析命令行参数
 	flag.Parse()
-
-	conn := NewConn()
-
-	loop(conn)
-
-	defer conn.Close()
+ 
+    // ...
 }
+```
 
+
+
+## 命令行输入
+
+``` go
 func loop(conn net.Conn) {
 	for {
 		fmt.Printf("%s:%d>", host, port)
@@ -39,7 +36,13 @@ func loop(conn net.Conn) {
 		fmt.Printf("%s\n", input)
 	}
 }
+```
 
+
+
+## 创建连接
+
+``` go
 // 创建链接
 func NewConn() net.Conn {
 
@@ -52,3 +55,10 @@ func NewConn() net.Conn {
 
 	return conn
 }
+```
+
+
+
+## 预览效果
+
+![](../image/01-first_cmd_line.gif)
