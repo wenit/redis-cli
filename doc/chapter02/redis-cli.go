@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -11,44 +10,21 @@ import (
 var host string
 var port int
 
-func init() {
-	flag.StringVar(&host, "h", "localhost", "host")
-	flag.IntVar(&port, "p", 6379, "port")
-}
-
 // 程序入口
 func main() {
-	// 解析命令行参数
-	flag.Parse()
+	host = "localhost"
+	port = 6379
 
 	conn := NewConn()
 
-	loop(conn)
+	rsp := Do(conn, "set", "name", "zhangsan")
+	fmt.Printf("%s\n", rsp)
+
+	rsp = Do(conn, "get", "name")
+	fmt.Printf("%s\n", rsp)
 
 	// 关闭连接
 	defer conn.Close()
-}
-
-// 命令行
-func loop(conn net.Conn) {
-
-	inputStr := "*3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$7\r\nmyvalue\r\n"
-
-	// fmt.Printf("%s\n", input)
-
-	// inputStr:=string(input)
-
-	// fields:=strings.Fields(inputStr)
-
-	// req:=MultiBulkMarshal(fields...);
-
-	//Write(conn,[]byte(req))
-	Write(conn, []byte(inputStr))
-
-	data := Read(conn)
-
-	fmt.Printf("%s\n", data)
-
 }
 
 // 创建连接
@@ -77,6 +53,23 @@ func Read(conn net.Conn) []byte {
 		log.Fatal(err)
 	}
 	return buff[0:n]
+}
+
+// 执行命令
+func Do(conn net.Conn, cmd string, args ...string) string {
+	cmds := make([]string, 0)
+
+	cmds = append(cmds, cmd)
+	cmds = append(cmds, args...)
+
+	req := MultiBulkMarshal(cmds...)
+
+	Write(conn, []byte(req))
+
+	rspBytes := Read(conn)
+
+	rsp := string(rspBytes)
+	return rsp
 }
 
 func MultiBulkMarshal(args ...string) string {
